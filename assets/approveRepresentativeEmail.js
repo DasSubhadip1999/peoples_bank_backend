@@ -1,19 +1,6 @@
-const approveRepresentativeEmailTemplate = () => {
+const approveRepresentativeEmailTemplate = (name, email, approveUrl) => {
   return `
-  <!doctype html>
-  <html lang="en-US">
-  
-  <head>
-      <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-      <title>Approval Email for Representative/title>
-      <meta name="description" content="New Account Email Template.">
-      <style type="text/css">
-          a:hover {text-decoration: underline !important;}
-      </style>
-  </head>
-  
   <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
-      <!-- 100% body table -->
       <table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#f2f3f8"
           style="@import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Open+Sans:300,400,600,700); font-family: 'Open Sans', sans-serif;">
           <tr>
@@ -25,7 +12,7 @@ const approveRepresentativeEmailTemplate = () => {
                       </tr>
                       <tr>
                           <td style="text-align:center;">
-                              <a href="https://rakeshmandal.com" title="logo" target="_blank">
+                              <a href="" title="logo" target="_blank">
                               <img width="200" src="https://logowik.com/content/uploads/images/the-peoples-bank1460.jpg" title="logo" alt="logo">
                             </a>
                           </td>
@@ -51,14 +38,15 @@ const approveRepresentativeEmailTemplate = () => {
                                             <p
                                               style="color:#455056; font-size:18px;line-height:20px; margin:0; font-weight: 500;">
                                               <strong
-                                                  style="display: block;font-size: 13px; margin: 0 0 4px; color:rgba(0,0,0,.64); font-weight:normal;">Name</strong> Subhadip Das
+                                                  style="display: block;font-size: 13px; margin: 0 0 4px; color:rgba(0,0,0,.64); font-weight:normal;">Name</strong> ${name}
                                               <strong
-                                                  style="display: block; font-size: 13px; margin: 24px 0 4px 0; font-weight:normal; color:rgba(0,0,0,.64);">Email</strong>subhadipdasrng54@gmail.com
+                                                  style="display: block; font-size: 13px; margin: 24px 0 4px 0; font-weight:normal; color:rgba(0,0,0,.64);">Email</strong>${email}
                                           </p>
                                          
                                           
                                           <a 
-                                             style="background:#20e277;text-decoration:none !important; display:inline-block; font-weight:500; margin-top:24px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px; cursor:pointer">Approve</a>
+                                            href="${approveUrl}"
+                                             style="background:#20e277;text-decoration:none !important; display:inline-block; font-weight:500; margin-top:24px; color:#fff !important;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px; cursor:pointer;">Approve</a>
                                       </td>
                                   </tr>
                                   <tr>
@@ -82,7 +70,7 @@ const approveRepresentativeEmailTemplate = () => {
               </td>
           </tr>
       </table>
-      <!--/100% body table-->
-  </body>
-  </html>`;
+  </body>`;
 };
+
+module.exports = approveRepresentativeEmailTemplate;

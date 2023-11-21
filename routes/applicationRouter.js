@@ -1,10 +1,11 @@
 const express = require("express");
-const { body, param } = require("express-validator");
+const { body } = require("express-validator");
 const validator = require("../middlewares/validatorMiddleware");
 const {
   createApplication,
   updateApplication,
   deleteApplication,
+  approveApplication,
 } = require("../controllers/representativeApplicationController");
 const { applicationAuth } = require("../middlewares/authMiddleware");
 
@@ -27,5 +28,7 @@ applicationRouter
 applicationRouter.route("/update").put(applicationAuth, updateApplication);
 
 applicationRouter.route("/delete").delete(applicationAuth, deleteApplication);
+
+applicationRouter.route("/approve/:id").get(approveApplication);
 
 module.exports = applicationRouter;
