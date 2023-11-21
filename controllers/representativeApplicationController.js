@@ -9,6 +9,7 @@ const sendEmail = require("../utils/sendEmail");
 const emailTemplate = require("../assets/approveRepresentativeEmail");
 const credentialEmail = require("../assets/credentialEmail");
 const AppError = require("../utils/AppError");
+const genToken = require("../shared/genToken");
 
 const createApplication = catchAsync(async (req, res, next) => {
   const { name, email } = req.body;
@@ -121,10 +122,6 @@ const approveApplication = catchAsync(async (req, res, next) => {
     path.join(__dirname, "../assets/representativeAccountApproval.html")
   );
 });
-
-const genToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "24h" });
-};
 
 module.exports = {
   createApplication,

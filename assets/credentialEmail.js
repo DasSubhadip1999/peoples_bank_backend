@@ -1,4 +1,4 @@
-const credentialEmail = (username, password) => {
+const credentialEmail = (username, password, resetPasswordUrl) => {
   return `
     <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
         <!-- 100% body table -->
@@ -45,7 +45,7 @@ const credentialEmail = (username, password) => {
                                             </p>
                                            
                                             
-                                            <p>Please change your password by clicking this link &nbsp;&nbsp; <a href="">Click Here</a> </p>
+                                            <p>Please change your password by clicking this link &nbsp;<a style="color:blue;text-decoration:underline;cursor:pointer" href="${resetPasswordUrl}">Click Here</a> </p>
                                         </td>
                                     </tr>
                                     <tr>
