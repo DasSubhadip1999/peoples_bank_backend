@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Application = require("../models/RepresentativeApplication");
 const Customer = require("../models/CustomerModel");
+const Representative = require("../models/RepresentativeModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 
@@ -49,7 +50,30 @@ const customerAuth = catchAsync(async (res, res, next) => {
   }
 });
 
+const representativeAuth = catchAsync(async (req, res, next) => {
+  let token;
+
+  const header = req.headers.authorization;
+
+  if (header && header.startsWith("Bearer")) {
+    token = header.split(" ")[1];
+
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+
+    const representative = await Representative.findOne({
+      where: { id: decode.id },
+    });
+
+    req.representative = representative;
+
+    next();
+  } else {
+    next(new AppError("No token in headers", 401));
+  }
+});
+
 module.exports = {
   applicationAuth,
   customerAuth,
+  representativeAuth,
 };

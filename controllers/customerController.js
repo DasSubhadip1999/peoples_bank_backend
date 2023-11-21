@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const Customer = require("../models/CustomerModel");
+const Account = require("../models/AccountDetailsModel");
 const catchAsync = require("../utils/catchAsync");
 const genToken = require("../shared/genToken");
 const AppError = require("../utils/AppError");
@@ -24,6 +25,8 @@ const createCustomer = catchAsync(async (res, res, next) => {
     password: hashedPassword,
     accountNumber: generateAccountNumber(),
   });
+
+  await Account.create({ accountNumber: customer.accountNumber });
 
   res.status(201).json({
     message: "Account created successfully",
@@ -72,6 +75,13 @@ const updateCustomer = catchAsync(async (req, res, next) => {
     .json({ message: "Your details updated successfully", data: newCustomer });
 });
 
+const getAllCustomers = catchAsync(async (req, res, next) => {
+  const customers = await Customer.findAll({
+    attributes: { exclude: ["password"] },
+  });
+  res.status(200).json({ message: "", data: customers });
+});
+
 const generateAccountNumber = () => {
   const branch_code = process.env.BRANCH_CODE;
   const randomNumber = Math.floor(Math.random() * 90000) + 10000;
@@ -83,4 +93,5 @@ module.exports = {
   createCustomer,
   customerLogin,
   updateCustomer,
+  getAllCustomers,
 };

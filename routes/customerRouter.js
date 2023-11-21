@@ -3,10 +3,14 @@ const {
   createCustomer,
   customerLogin,
   updateCustomer,
+  getAllCustomers,
 } = require("../controllers/customerController");
 const { body } = require("express-validator");
 const validator = require("../middlewares/validatorMiddleware");
-const { customerAuth } = require("../middlewares/authMiddleware");
+const {
+  customerAuth,
+  representativeAuth,
+} = require("../middlewares/authMiddleware");
 
 const customerRouter = express.Router();
 
@@ -44,5 +48,7 @@ customerRouter
   );
 
 customerRouter.route("/update").patch(customerAuth, updateCustomer);
+
+customerRouter.route("/getAll").get(representativeAuth, getAllCustomers);
 
 module.exports = customerRouter;
