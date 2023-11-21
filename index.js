@@ -6,13 +6,18 @@ const PORT = process.env.PORT;
 const { connectDB } = require("./configs/dbConnection");
 const { errorHanlder } = require("./middlewares/errorHandler");
 const { accessControl } = require("./middlewares/accessControl");
-const AppError = require("./utils/appError");
+const AppError = require("./utils/AppError");
 
 connectDB();
 //App configuration
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(accessControl);
+
+app.use(
+  "/api/v1/representative-application",
+  require("./routes/applicationRouter")
+);
 
 app.get("/", (req, res) => res.status(200).json({ message: `API is live` }));
 app.all("*", (req, res, next) =>
