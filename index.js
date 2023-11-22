@@ -20,6 +20,7 @@ app.use(
 );
 app.use("/api/v1/representative", require("./routes/representativeRouter"));
 app.use("/api/v1/customer", require("./routes/customerRouter"));
+app.use("/api/v1/account", require("./routes/accountRouter"));
 
 app.get("/", (req, res) => res.status(200).json({ message: `API is live` }));
 app.all("*", (req, res, next) =>

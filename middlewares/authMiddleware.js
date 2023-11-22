@@ -40,7 +40,10 @@ const customerAuth = catchAsync(async (res, res, next) => {
 
     const decode = jwt.verify(token, process.env.JWT_SECRET);
 
-    const customer = await Customer.findOne({ where: { id: decode.id } });
+    const customer = await Customer.findOne({
+      where: { id: decode.id },
+      attributes: { exclude: ["password"] },
+    });
 
     req.customer = customer;
 
@@ -62,6 +65,7 @@ const representativeAuth = catchAsync(async (req, res, next) => {
 
     const representative = await Representative.findOne({
       where: { id: decode.id },
+      attributes: { exclude: ["password"] },
     });
 
     req.representative = representative;

@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const catchAsync = require("../utils/catchAsync");
@@ -23,7 +22,7 @@ const createApplication = catchAsync(async (req, res, next) => {
   const htmlEmail = emailTemplate(
     application.name,
     application.email,
-    `172.27.6.96:5000/api/v1/representative-application/approve/${application.application_id}`
+    `http://172.27.6.96:5000/api/v1/representative-application/approve/${application.application_id}`
   );
 
   await sendEmail(
