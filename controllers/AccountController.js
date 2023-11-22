@@ -3,8 +3,7 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const Customer = require("../models/customerModel");
 const Account = require("../models/AccountDetailsModel");
-const Credit = require("../models/CreditModel");
-const Debit = require("../models/DebitModel");
+const Ledger = require("../models/Ledger");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const { Op } = require("sequelize");
@@ -20,10 +19,11 @@ const deposit = catchAsync(async (req, res, next) => {
     where: { accountNumber: customer.accountNumber },
   });
 
-  const credit = await Credit.create({
-    creditValue: amount,
+  const credit = await Ledger.create({
     accountNumber: customer.accountNumber,
-    referenceId: generateReferenceId(),
+    transactionId: generateTransactionId(),
+    type: "credit",
+    value: amount,
   });
 
   const lastFourDigit = `${customer.accountNumber}`.slice(-4);
@@ -32,7 +32,7 @@ const deposit = catchAsync(async (req, res, next) => {
     where: { accountNumber: customer.accountNumber },
   });
 
-  await Credit.update(
+  await Ledger.update(
     { updatedBalance: +account.balance + +amount },
     { where: { accountNumber: account.accountNumber } }
   );
@@ -63,12 +63,15 @@ const withdraw = catchAsync(async (req, res, next) => {
     where: { accountNumber: account.accountNumber },
   });
 
-  const debit = await Debit.create({
+  const debit = await Ledger.create({
     accountNumber: account.accountNumber,
-    debitValue: amount,
-    referenceId: generateReferenceId(),
+    type: "debit",
+    value: amount,
+    transactionId: generateTransactionId(),
     updatedBalance: +account.balance - +amount,
   });
+
+  const lastFourDigit = `${customer.accountNumber}`.slice(-4);
 
   res.status(200).json({
     message: `Your account number XXXXX${lastFourDigit} has been debited with ₹${amount}, available balance is ₹${
@@ -86,35 +89,23 @@ const generateStatement = catchAsync(async (req, res, next) => {
     where: { accountNumber: customer.accountNumber },
   });
 
-  const credit = await Credit.findAll({
+  const records = await Ledger.findAll({
     where: {
       accountNumber: account.accountNumber,
-      updatedAt: {
+      createdAt: {
         [Op.between]: [new Date(startDate), new Date(endDate)],
       },
     },
-    order: [["updatedAt", "DESC"]],
-  });
-
-  const debit = await Debit.findAll({
-    where: {
-      accountNumber: account.accountNumber,
-      updatedAt: {
-        [Op.between]: [new Date(startDate), new Date(endDate)],
-      },
+    order: [["createdAt", "DESC"]],
+    attributes: {
+      exclude: ["id", "accountNumber"],
     },
-    order: [["updatedAt", "DESC"]],
   });
-
-  const statementObject = {
-    credit,
-    debit,
-  };
 
   const password =
     customer.name.slice(0, 4) + `${customer.accountNumber}`.slice(0, 4);
 
-  await generatePdf(statementObject, password, customer.accountNumber);
+  await generatePdf(records, password, customer.accountNumber);
 
   const filePath = path.join(
     __dirname,
@@ -133,7 +124,7 @@ const generateStatement = catchAsync(async (req, res, next) => {
   fileStream.pipe(res);
 });
 
-const generateReferenceId = () => {
+const generateTransactionId = () => {
   return uuidv4();
 };
 

@@ -2,17 +2,25 @@ const pdfMake = require("pdfmake");
 const path = require("path");
 
 const generatePdf = async (data, password, accountNumber) => {
+  const header = Object.keys(data);
+  const body = data.map((item) => {
+    let child = [];
+    header.forEach((head) => child.push(item[head]));
+    return child;
+  });
+
   const documentDefinition = {
     content: [
-      { text: "Array of Objects to PDF", style: "header" },
+      { text: "Statement", style: "header" },
       { text: "\n" },
       {
         table: {
           headerRows: 1,
           widths: ["auto", "auto", "auto"],
           body: [
-            ["Name", "Age", "City"],
-            ...data.map((item) => [item.name, item.age, item.city]),
+            header,
+            ...body,
+            //...data.map((item) => [item.name, item.age, item.city]),
           ],
         },
       },
@@ -42,9 +50,8 @@ const generatePdf = async (data, password, accountNumber) => {
 
 module.exports = generatePdf;
 
-// Your array of objects
-// const data = [
-//   { name: "John Doe", age: 30, city: "New York" },
-//   { name: "Jane Smith", age: 25, city: "San Francisco" },
-//   // Add more objects as needed
-// ];
+const data = [
+  { name: "John Doe", age: 30, city: "New York" },
+  { name: "Jane Smith", age: 25, city: "San Francisco" },
+  // Add more objects as needed
+];
