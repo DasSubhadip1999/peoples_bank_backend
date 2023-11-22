@@ -11,6 +11,7 @@ const {
   customerAuth,
   representativeAuth,
 } = require("../middlewares/authMiddleware");
+const upload = require("../middlewares/uploadMiddleware");
 
 const customerRouter = express.Router();
 
@@ -47,7 +48,9 @@ customerRouter
     customerLogin
   );
 
-customerRouter.route("/update").patch(customerAuth, updateCustomer);
+customerRouter
+  .route("/update")
+  .patch(customerAuth, upload.single("profilePic"), updateCustomer);
 
 customerRouter.route("/getAll").get(representativeAuth, getAllCustomers);
 
