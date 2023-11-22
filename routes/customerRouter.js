@@ -12,6 +12,7 @@ const {
   representativeAuth,
 } = require("../middlewares/authMiddleware");
 const upload = require("../middlewares/uploadMiddleware");
+const { generateStatement } = require("../controllers/AccountController");
 
 const customerRouter = express.Router();
 
@@ -53,5 +54,14 @@ customerRouter
   .patch(customerAuth, upload.single("profilePic"), updateCustomer);
 
 customerRouter.route("/getAll").get(representativeAuth, getAllCustomers);
+
+customerRouter
+  .route("/generate-statement")
+  .post(
+    body("startDate").isDate().withMessage("Start Date is required"),
+    body("endDate").isDate().withMessage("End Date is required"),
+    customerAuth,
+    generateStatement
+  );
 
 module.exports = customerRouter;

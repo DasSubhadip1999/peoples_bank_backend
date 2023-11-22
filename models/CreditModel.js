@@ -11,7 +11,15 @@ const CreditModel = sequelize.define("credit", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  referenceId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
   creditValue: {
+    type: DataTypes.INTEGER,
+  },
+  updatedBalance: {
     type: DataTypes.INTEGER,
   },
 });

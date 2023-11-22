@@ -11,7 +11,15 @@ const DebitModel = sequelize.define("debit", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  referenceId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
   debitValue: {
+    type: DataTypes.INTEGER,
+  },
+  updatedBalance: {
     type: DataTypes.INTEGER,
   },
 });
