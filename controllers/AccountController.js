@@ -1,13 +1,10 @@
-const fs = require("fs").promises;
-const path = require("path");
-const { v4: uuidv4 } = require("uuid");
-const Customer = require("../models/customerModel");
+const Customer = require("../models/CustomerModel");
 const Account = require("../models/AccountDetailsModel");
 const Ledger = require("../models/Ledger");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const { Op } = require("sequelize");
-const generatePdf = require("../utils/generatePdf");
+const generateTransactionId = require("../shared/generateTransactionId");
 
 const deposit = catchAsync(async (req, res, next) => {
   const { amount } = req.body;
@@ -102,10 +99,6 @@ const generateStatement = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ message: "", data: records });
 });
-
-const generateTransactionId = () => {
-  return uuidv4();
-};
 
 module.exports = {
   deposit,

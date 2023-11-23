@@ -8,12 +8,12 @@ const AccountDetailsModel = sequelize.define("accountdetail", {
     autoIncrement: true,
   },
   accountNumber: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
     unique: true,
   },
   balance: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
     defaultValue: 0,
   },

@@ -16,18 +16,8 @@ const CustomerModel = sequelize.define("customer", {
     allowNull: false,
     unique: true,
   },
-  password: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  profilePic: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    defaultValue:
-      "https://i.pinimg.com/474x/76/4d/59/764d59d32f61f0f91dec8c442ab052c5.jpg",
-  },
   accountNumber: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
     unique: true,
   },
@@ -38,6 +28,17 @@ const CustomerModel = sequelize.define("customer", {
   gender: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  profilePic: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    defaultValue:
+      "https://i.pinimg.com/474x/76/4d/59/764d59d32f61f0f91dec8c442ab052c5.jpg",
+    unique: false,
+  },
+  password: {
+    type: DataTypes.TEXT,
+    allowNull: false,
   },
 });
 

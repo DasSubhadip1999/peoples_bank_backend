@@ -4,6 +4,7 @@ const {
   customerLogin,
   updateCustomer,
   getAllCustomers,
+  sendMoney,
 } = require("../controllers/customerController");
 const { body } = require("express-validator");
 const validator = require("../middlewares/validatorMiddleware");
@@ -58,10 +59,22 @@ customerRouter.route("/getAll").get(representativeAuth, getAllCustomers);
 customerRouter
   .route("/generate-statement")
   .post(
-    body("startDate").isDate().withMessage("Start Date is required"),
-    body("endDate").isDate().withMessage("End Date is required"),
+    body("startDate").exists().isDate().withMessage("Start Date is required"),
+    body("endDate").exists().isDate().withMessage("End Date is required"),
     customerAuth,
     generateStatement
+  );
+
+customerRouter
+  .route("/send-money")
+  .post(
+    body("receiverAccountNumber")
+      .exists()
+      .isNumeric()
+      .withMessage("Account number required"),
+    body("amount").exists().isNumeric().withMessage("Amount is required"),
+    customerAuth,
+    sendMoney
   );
 
 module.exports = customerRouter;

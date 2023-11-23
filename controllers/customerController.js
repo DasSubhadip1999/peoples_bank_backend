@@ -4,6 +4,8 @@ const Account = require("../models/AccountDetailsModel");
 const catchAsync = require("../utils/catchAsync");
 const genToken = require("../shared/genToken");
 const AppError = require("../utils/AppError");
+const Ledger = require("../models/Ledger");
+const generateTransactionId = require("../shared/generateTransactionId");
 
 const createCustomer = catchAsync(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -105,10 +107,78 @@ const generateAccountNumber = () => {
   return Number(accountNumber);
 };
 
+const sendMoney = catchAsync(async (req, res, next) => {
+  const { amount, receiverAccountNumber } = req.body;
+
+  if (!amount || !receiverAccountNumber) {
+    return next(new AppError("Please fill all details", 400));
+  }
+
+  const receiver = await Account.findOne({
+    where: { accountNumber: receiverAccountNumber },
+  });
+
+  if (!receiver) {
+    next(
+      new AppError(
+        `We can't find customer with account number ${receiverAccountNumber}`
+      )
+    );
+  }
+
+  const customer = await Customer.findOne({ where: { id: req.customer.id } });
+
+  const account = await Account.findOne({
+    where: { accountNumber: customer.accountNumber },
+  });
+
+  if (account.balance < amount) {
+    next(new AppError(`Your account doesn't have sufficient balance`));
+  }
+
+  //deducting from senders account
+  await Account.decrement("balance", {
+    by: amount,
+    where: { accountNumber: customer.accountNumber },
+  });
+
+  //updating banks record with debit and credit
+  const debit = await Ledger.create({
+    accountNumber: account.accountNumber,
+    type: "debit",
+    value: amount,
+    transactionId: generateTransactionId(),
+    updatedBalance: +account.balance - +amount,
+  });
+
+  await Ledger.create({
+    accountNumber: receiverAccountNumber,
+    type: "credit",
+    value: amount,
+    transactionId: debit.transactionId,
+    updatedBalance: +receiver.balance + +amount,
+  });
+
+  //adding to receiver's account
+  await Account.increment("balance", {
+    by: amount,
+    where: { accountNumber: receiverAccountNumber },
+  });
+
+  const updatedSendersAccount = await Account.findOne({
+    where: { accountNumber: customer.accountNumber },
+  });
+
+  res.status(200).json({
+    message: `You've send ₹${amount} to ${receiver.accountNumber}. Your available balance is ${updatedSendersAccount.balance}`,
+  });
+});
+
 module.exports = {
   createCustomer,
   customerLogin,
   updateCustomer,
   getAllCustomers,
   getCustomer,
+  sendMoney,
 };

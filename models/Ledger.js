@@ -8,7 +8,7 @@ const Ledger = sequelize.define("ledger", {
     autoIncrement: true,
   },
   accountNumber: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
   },
   transactionId: {
@@ -20,11 +20,11 @@ const Ledger = sequelize.define("ledger", {
     values: ["credit", "debit"],
   },
   value: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
   },
   updatedBalance: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
     defaultValue: 0,
   },
