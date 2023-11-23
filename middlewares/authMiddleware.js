@@ -30,7 +30,7 @@ const applicationAuth = catchAsync(async (req, res, next) => {
   }
 });
 
-const customerAuth = catchAsync(async (res, res, next) => {
+const customerAuth = catchAsync(async (req, res, next) => {
   let token;
 
   const header = req.headers.authorization;

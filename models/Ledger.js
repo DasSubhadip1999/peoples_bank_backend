@@ -10,7 +10,6 @@ const Ledger = sequelize.define("ledger", {
   accountNumber: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    unique: true,
   },
   transactionId: {
     type: DataTypes.STRING,
@@ -27,6 +26,7 @@ const Ledger = sequelize.define("ledger", {
   updatedBalance: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    defaultValue: 0,
   },
 });
 

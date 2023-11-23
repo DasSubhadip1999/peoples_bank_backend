@@ -5,7 +5,7 @@ const catchAsync = require("../utils/catchAsync");
 const genToken = require("../shared/genToken");
 const AppError = require("../utils/AppError");
 
-const createCustomer = catchAsync(async (res, res, next) => {
+const createCustomer = catchAsync(async (req, res, next) => {
   const { name, email, password } = req.body;
 
   const customerExists = await Customer.findOne({ where: { email } });
@@ -39,10 +39,12 @@ const createCustomer = catchAsync(async (res, res, next) => {
   });
 });
 
-const customerLogin = catchAsync(async (res, res, next) => {
+const customerLogin = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const customer = await Customer.findOne({ where: { email } });
+  const customer = await Customer.findOne({
+    where: { email },
+  });
 
   if (!customer) {
     return next(new AppError("No account found with this email", 404));
@@ -50,7 +52,9 @@ const customerLogin = catchAsync(async (res, res, next) => {
 
   if (await bcrypt.compare(password, customer.password)) {
     return res.status(200).json({
-      ...customer,
+      name: customer.name,
+      email: customer.email,
+      accountNumber: customer.accountNumber,
       token: genToken(customer.id),
     });
   } else {
@@ -86,6 +90,14 @@ const getAllCustomers = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "", data: customers });
 });
 
+const getCustomer = catchAsync(async (req, res, next) => {
+  const customer = await Customer.findOne({
+    where: { id: req.customer.id },
+    attributes: { exclude: ["password"] },
+  });
+  res.status(200).json({ message: "", data: customer });
+});
+
 const generateAccountNumber = () => {
   const branch_code = process.env.BRANCH_CODE;
   const randomNumber = Math.floor(Math.random() * 90000) + 10000;
@@ -98,4 +110,5 @@ module.exports = {
   customerLogin,
   updateCustomer,
   getAllCustomers,
+  getCustomer,
 };

@@ -1,5 +1,5 @@
-const pdfMake = require("pdfmake");
 const path = require("path");
+const PdfPrinter = require("pdfmake");
 
 const generatePdf = async (data, password, accountNumber) => {
   const header = Object.keys(data);
@@ -8,6 +8,17 @@ const generatePdf = async (data, password, accountNumber) => {
     header.forEach((head) => child.push(item[head]));
     return child;
   });
+
+  const fonts = {
+    Roboto: {
+      normal: path.join(__dirname, "../assets/fonts/DejaVuSans.ttf"),
+      bold: path.join(__dirname, "../assets/fonts/DejaVuSans-Bold.ttf"),
+      italics: path.join(__dirname, "../assets/fonts/DejaVuSans.ttf"),
+      bolditalics: path.join(__dirname, "../assets/fonts/DejaVuSans.ttf"),
+    },
+  };
+
+  const pdfPrinter = new PdfPrinter(fonts);
 
   const documentDefinition = {
     content: [
@@ -38,14 +49,12 @@ const generatePdf = async (data, password, accountNumber) => {
 
   const outputPath = path.join(__dirname, "statements", `${accountNumber}.pdf`);
 
-  const pdf = pdfMake.createPdf(documentDefinition);
+  const pdf = pdfPrinter.createPdfKitDocument(documentDefinition);
 
-  try {
-    await pdf.writeAsync(outputPath);
-    console.log("PDF created successfully!");
-  } catch (err) {
-    return err;
-  }
+  pdf.pipe(fs.createWriteStream(outputPath));
+  pdf.end();
+
+  return outputPath;
 };
 
 module.exports = generatePdf;

@@ -14,16 +14,16 @@ const deposit = catchAsync(async (req, res, next) => {
 
   const customer = await Customer.findOne({ where: { id: req.customer.id } });
 
-  await Account.increment("balance", {
-    by: amount,
-    where: { accountNumber: customer.accountNumber },
-  });
-
   const credit = await Ledger.create({
     accountNumber: customer.accountNumber,
     transactionId: generateTransactionId(),
     type: "credit",
     value: amount,
+  });
+
+  await Account.increment("balance", {
+    by: amount,
+    where: { accountNumber: customer.accountNumber },
   });
 
   const lastFourDigit = `${customer.accountNumber}`.slice(-4);
@@ -33,14 +33,12 @@ const deposit = catchAsync(async (req, res, next) => {
   });
 
   await Ledger.update(
-    { updatedBalance: +account.balance + +amount },
-    { where: { accountNumber: account.accountNumber } }
+    { updatedBalance: account.balance },
+    { where: { accountNumber: customer.accountNumber, id: credit.id } }
   );
 
   res.status(200).json({
-    message: `Your account number XXXXX${lastFourDigit} has been credited with ₹${amount}, available balance is ₹${
-      +account.balance + +amount
-    }. Reference ID for this transaction is ${credit.referenceId}`,
+    message: `Your account number XXXXX${lastFourDigit} has been credited with ₹${amount}, available balance is ₹${account.balance}. Reference ID for this transaction is ${credit.transactionId}`,
   });
 });
 
@@ -53,7 +51,7 @@ const withdraw = catchAsync(async (req, res, next) => {
     where: { accountNumber: customer.accountNumber },
   });
 
-  if (!(amount >= account.balance))
+  if (amount > account.balance)
     return next(
       new AppError("Your account does not have sufficient balance", 400)
     );
@@ -76,7 +74,7 @@ const withdraw = catchAsync(async (req, res, next) => {
   res.status(200).json({
     message: `Your account number XXXXX${lastFourDigit} has been debited with ₹${amount}, available balance is ₹${
       +account.balance - +amount
-    }. Reference ID for this transaction is ${debit.referenceId}`,
+    }. Reference ID for this transaction is ${debit.transactionId}`,
   });
 });
 
@@ -98,30 +96,11 @@ const generateStatement = catchAsync(async (req, res, next) => {
     },
     order: [["createdAt", "DESC"]],
     attributes: {
-      exclude: ["id", "accountNumber"],
+      exclude: ["id", "accountNumber", "updatedAt"],
     },
   });
 
-  const password =
-    customer.name.slice(0, 4) + `${customer.accountNumber}`.slice(0, 4);
-
-  await generatePdf(records, password, customer.accountNumber);
-
-  const filePath = path.join(
-    __dirname,
-    `statements/${customer.accountNumber}.pdf`
-  );
-
-  await fs.stat(filePath);
-
-  res.setHeader("Content-Type", "application/pdf");
-
-  res.setHeader(
-    `Content-Disposition", "attachment; filename=${customer.accountNumber}.pdf`
-  );
-
-  const fileStream = fs.createReadStream(filePath);
-  fileStream.pipe(res);
+  res.status(200).json({ message: "", data: records });
 });
 
 const generateTransactionId = () => {
