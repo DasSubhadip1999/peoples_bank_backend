@@ -5,6 +5,7 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const { Op } = require("sequelize");
 const generateTransactionId = require("../shared/generateTransactionId");
+const { getOrSetInRedis } = require("../configs/Redis");
 
 const deposit = catchAsync(async (req, res, next) => {
   const { amount } = req.body;
@@ -78,11 +79,34 @@ const withdraw = catchAsync(async (req, res, next) => {
 const generateStatement = catchAsync(async (req, res, next) => {
   const { startDate, endDate } = req.body;
 
+  if (!startDate || !endDate) {
+    return next(new AppError("start date and end date required", 400));
+  }
+
   const customer = await Customer.findOne({ where: { id: req.customer.id } });
 
   const account = await Account.findOne({
     where: { accountNumber: customer.accountNumber },
   });
+
+  // const records = await getOrSetInRedis(
+  //   `records?startDate=${startDate}&endDate=${endDate}`,
+  //   async () => {
+  //     const data = await Ledger.findAll({
+  //       where: {
+  //         accountNumber: account.accountNumber,
+  //         createdAt: {
+  //           [Op.between]: [new Date(startDate), new Date(endDate)],
+  //         },
+  //       },
+  //       order: [["createdAt", "DESC"]],
+  //       attributes: {
+  //         exclude: ["id", "accountNumber", "updatedAt"],
+  //       },
+  //     });
+  //     return data;
+  //   }
+  // );
 
   const records = await Ledger.findAll({
     where: {

@@ -4,11 +4,13 @@ const express = require("express");
 const app = require("./app");
 const PORT = process.env.PORT;
 const { connectDB } = require("./configs/dbConnection");
+const { connectRedis } = require("./configs/Redis");
 const { errorHanlder } = require("./middlewares/errorHandler");
 const { accessControl } = require("./middlewares/accessControl");
 const AppError = require("./utils/AppError");
 
 connectDB();
+connectRedis();
 //App configuration
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
